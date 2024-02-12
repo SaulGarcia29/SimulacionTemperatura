@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>Medidor Temperatura, Humedad</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+    
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      // Libreria
+    google.charts.load('current', {'packages':['gauge']});
+    google.charts.setOnLoadCallback(drawChart);
+      
+      //Variables
+    var temperaturaActual = 0;
+    var temperaturaObjetivo = 20;
+    var temperaturaPasada = 0;
+    var turnoActual = 1;
+    var turnoPasado = 1;
+  
+
+      //valores a visualizar en el medidor
+function drawChart() {
+  var data = google.visualization.arrayToDataTable([
+    ['Label', 'Value'],
+    ['Temperatura', temperaturaActual]
+  ]);
+
+      //Configuracion del diseño del medidor de la temperatura
+  var options = {
+    width: 400, height: 400,
+    redFrom: 90, redTo: 100,
+    yellowFrom:75, yellowTo: 90,
+    minorTicks: 5
+  };
+
+      //Crea el medidor y lo muestra con los valores anteriormente otorgados
+  var chart = new google.visualization.Gauge(document.getElementById('Medidores'));
+  chart.draw(data, options);
+
+  if (temperaturaActual > temperaturaObjetivo) {
+    if (temperaturaPasada > temperaturaObjetivo) {
+      // La temperatura no ha bajado, mantener el mismo aire acondicionado encendido
+      turnoActual = turnoPasado;
+    } else {
+      // La temperatura ha bajado, cambiar al siguiente turno
+      if (turnoActual != 1) {
+        turnoActual = 1;
+      } else {
+        turnoActual = 2;
+      }
+    }
+      
+    // Apagar el aire acondicionado en turno pasado
+    var AireApagado = document.getElementById('Aire' + turnoPasado);
+    AireApagado.src = "apagado.png";
+    // Encender el aire acondicionado en turno
+    var aireEncendido = document.getElementById('Aire' + turnoActual);
+    aireEncendido.src = "encendido.png";
+
+  } else {
+    // Apagar ambos aires acondicionados
+    var aire1 = document.getElementById('Aire1');
+    aire1.src = "apagado.png";
+
+    var aire2 = document.getElementById('Aire2');
+    aire2.src = "apagado.png";
+
+  }
+      //Para guardar valores actuales y usarlos como valores pasados en la proxima ejecucion
+    turnoPasado = turnoActual;
+    temperaturaPasada = temperaturaActual;
+}
+
+setInterval(function() {
+      //Aqui obtengo el valor de la temperatura
+  temperaturaActual = Math.floor(50 * Math.random());
+  drawChart();
+}, 1000);
+
+    </script>
+</head>
+<body>
+  <div style="text-align: -webkit-center;">
+
+    <div id="Header">
+      <h1 style="font-family: 'Times New Roman', Times, serif; font-size: 50px;"><span style="color:#fdbf00">Aplicacion de tempe</span><span style="color:#4793ff">ratura en tiempo real</span></h1><br>
+      <img src="clima.png" width="100" height="100" />
+      <br><br><br><br><br><br><br><br><br><br><br><br>
+    </div>
+
+    <div id="Body" style="align-items: center; display: inline-flex;">
+      <div id="Medidores" ></div>
+      <img src="flecha-correcta.png" style="margin-left: 40px;" width="250" height="250" />
+      <img id="Aire1" style="margin-left: 80px;" src="apagado.png" width="250" height="250" />
+      <img id="Aire2" style="margin-left: 80px;" src="apagado.png" width="250" height="250" />
+    </div>
+
+  </div>
+</body>
+</html>
